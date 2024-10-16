@@ -2,9 +2,22 @@
 import { TipoProduto } from "../../types"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { FaFileInvoice, FaTrashAlt } from "react-icons/fa"
+import Modal from '@/app/produtos/produto/Modal'
 
 export default function Produtos(){
+    
+    const navigate = useRouter()
 
+    const[open,setOpen] = useState(false)
+    const[idDelete,setIdDelete] = useState(0)
+
+    const idModal = (id:number)=>{
+        setOpen(true)
+        setIdDelete(id)
+    }
+    
     const [lista, setLista] = useState<TipoProduto[]>([])
 
     useEffect(()=>{
@@ -16,6 +29,25 @@ export default function Produtos(){
         }
         chamadaApi()
     },[])
+
+    const handleDelete = async (id:number)=>{
+
+        try{
+            const response = await fetch(`http://localhost:3000/api/base-produtos/${id}`, {method:"DELETE"})
+            if(response.ok){
+                setOpen(false)
+                window.location.reload()
+
+            }else{
+                setOpen(false)
+                alert('Erro ao deletar o produto')
+                navigate.push('/produtos')
+            }
+        } catch(error){
+            console.error("Falha ao apagar registro", error)
+        }
+
+    }
 
     return(
         <main className="grow p-5">
@@ -34,8 +66,10 @@ export default function Produtos(){
                                 <td>{p.nome}</td>
                                 <td>{p.preco}</td>
                                 <td>{p.estoque}</td>
-                                <td>
-                                    <Link className="font-bold text-red-600" href={`/produtos/produto/${p.id}`}>Editar</Link>
+                                <td className="flex justify-center items-center gap-2">
+                                    <Link title="Editar" className="text-blue-700" href={`/produtos/produto/${p.id}`}><FaFileInvoice/></Link>
+                                    {' | '}
+                                    <button title="Exlcuir" className="text-red-700" onClick={()=>idModal(p.id)}><FaTrashAlt/></button>
                                 </td>
                             </tr>
                         ))
@@ -47,6 +81,18 @@ export default function Produtos(){
                     </tr>
                 </tfoot>
             </table>
+            <Modal open={open} onClose={()=>setOpen(false)}>
+                <div className="text-center w-56">
+                    <FaTrashAlt size={56} className="mx-auto text-red-700"/>
+                    <h3 className="tex-lg font-black text-gray-800">Excluir Produto?</h3>
+                    <p className="text-gray-500 text-sm">Voce tem certea que deseja excluir o produto?</p>
+                
+                </div>
+                <div className="flex gap-4">
+                    <button className="btn btn-danger w-full" onClick={()=> handleDelete(idDelete)}>Exlcuir</button>
+                    <button className="btn btn-light w-full" onClick={()=>setOpen(false)}>Cancelar</button> 
+                </div>
+            </Modal>
         </main>
     )
 }

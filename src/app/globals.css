@@ -18,3 +18,12 @@ table, th, td{
 th,td{
   @apply p-1
 }
+.btn{
+  @apply flex gap-2 items-center justify-center py-2 px-4 font-semibold shadow-md rounded-lg
+}
+.btn.btn-light{
+  @apply bg-white text-gray-500 hover:bg-gray-700 hover:text-white 
+}
+.btn.btn-danger{
+  @apply bg-red-600 text-white shadow-red-400/40 hover:bg-red-600/65 hover:text-black
+}
